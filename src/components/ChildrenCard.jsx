@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Card, Typography, Button } from '@mui/material';
 
 const mockData = [
   {
@@ -23,20 +24,21 @@ export function ChildrenCard() {
   return (
     <div>
       {children.map((child) => (
-        <div key={child.id} className="card">
-          <div>Name: {child.name}</div>
-          <div>Age: {child.age}</div>
-          <div>School: {child.school}</div>
-          <div>Date: {child.date}</div>
-        </div>
+        <Card key={child.id} className="card" sx={{ mb: 2, p: 2 }}>
+          <Typography variant="body1">Name: {child.name}</Typography>
+          <Typography variant="body1">Age: {child.age}</Typography>
+          <Typography variant="body1">School: {child.school}</Typography>
+          <Typography variant="body1">Date: {child.date}</Typography>
+        </Card>
       ))}
-      <button
+      <Button
+        variant="contained"
         onClick={() => {
           /* Future modal trigger */
         }}
       >
         Add New Child
-      </button>
+      </Button>
     </div>
   );
 }

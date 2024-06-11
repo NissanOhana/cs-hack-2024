@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { HomePage } from './HomePage';
-import '../App.css'; // Add this line at the top of your App.tsx file
+import { Button, Typography } from '@mui/material';
+import '../App.css';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home'); // 'home' or 'qa'
@@ -8,10 +9,14 @@ function App() {
   return (
     <div className="App">
       <header>
-        <h1>App Title</h1>
+        <Typography variant="h3">10Katef 🦁</Typography>
         <nav>
-          <button onClick={() => setCurrentPage('home')}>Home</button>
-          <button onClick={() => setCurrentPage('qa')}>Q&A</button>
+          <Button variant="contained" onClick={() => setCurrentPage('home')}>
+            Home
+          </Button>
+          <Button variant="contained" onClick={() => setCurrentPage('qa')}>
+            Q&A
+          </Button>
         </nav>
       </header>
       {currentPage === 'home' ? <HomePage /> : <QAPage />}
@@ -20,7 +25,7 @@ function App() {
 }
 
 function QAPage() {
-  return <h2>Q&A Page</h2>;
+  return <Typography variant="h5">Q&A Page</Typography>;
 }
 
 export default App;

@@ -30,3 +30,11 @@ git branch -M main
 git remote add origin git@github.com:NissanOhana/my-react-app.git
 git push -u origin main
 ```
+
+### Install MUI
+Read more about MUI here: https://mui.com/material-ui/getting-started/
+```
+npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/icons-material
+
+```
