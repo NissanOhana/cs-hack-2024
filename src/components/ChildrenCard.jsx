@@ -1,40 +1,63 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Typography, Button } from '@mui/material';
 import AddChildModal from './AddChildModal';
-
-const mockData = [
-  {
-    id: 1,
-    name: 'Harry Potter',
-    age: 11,
-    school: 'Hogwarts',
-    date: '2024-01-01',
-  },
-  {
-    id: 2,
-    name: 'Hermione Granger',
-    age: 11,
-    school: 'Hogwarts',
-    date: '2024-01-01',
-  },
-];
+import { db } from '../firebase'; // Import the configured Firestore database instance
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 
 export function ChildrenCard() {
-  const [children, setChildren] = useState(mockData);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [children, setChildren] = useState([]); // State to store the list of children
+  const [modalOpen, setModalOpen] = useState(false); // State to control the visibility of the modal
+
+  // useEffect hook to fetch data from Firestore on component mount
+  useEffect(() => {
+    // TODO:  What is that async??? 🦁 🦁
+    const fetchChildren = async () => {
+      // Define the collection you're working with ('children' collection)
+      const childrenCollection = collection(db, 'children');
+
+      // Fetch documents from the Firestore collection
+      const childrenSnapshot = await getDocs(childrenCollection);
+
+      // Map through each document and transform into a usable format for the state
+      const childrenList = childrenSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Set the state with the fetched data
+      setChildren(childrenList);
+    };
+
+    // Call the function to fetch data
+    fetchChildren();
+  }, []);
 
   const handleOpenModal = () => {
-    setModalOpen(true);
+    setModalOpen(true); // Open the modal
   };
 
   const handleCloseModal = () => {
-    setModalOpen(false);
+    setModalOpen(false); // Close the modal
   };
 
-  const addNewChild = (child) => {
-    setChildren([...children, { ...child, id: children.length + 1 }]);
+  // Function to add a new child to the Firestore database
+  const addNewChild = async (child) => {
+    try {
+      // Attempt to add a new document to the Firestore collection
+      const docRef = await addDoc(collection(db, 'children'), child);
+
+      // If successful, update the local state to include the new child
+      setChildren([...children, { ...child, id: docRef.id }]);
+
+      // Close the modal after adding the child
+      handleCloseModal();
+    } catch (error) {
+      // Log any errors that occur during the process
+      console.error('Error adding document: ', error);
+    }
   };
 
+  // Render the UI for the component
   return (
     <div>
       {children.map((child) => (

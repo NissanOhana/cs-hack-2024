@@ -38,3 +38,10 @@ npm install @mui/material @emotion/react @emotion/styled
 npm install @mui/icons-material
 
 ```
+
+### Set up Firestore
+First, ensure that Firestore is properly configured in your Firebase project. Then, install Firestore SDK:
+```
+npm install @firebase/firestore
+
+```
