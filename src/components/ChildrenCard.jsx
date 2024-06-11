@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Typography, Button } from '@mui/material';
+import AddChildModal from './AddChildModal';
 
 const mockData = [
   {
@@ -19,7 +20,20 @@ const mockData = [
 ];
 
 export function ChildrenCard() {
-  const [children] = useState(mockData);
+  const [children, setChildren] = useState(mockData);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const addNewChild = (child) => {
+    setChildren([...children, { ...child, id: children.length + 1 }]);
+  };
 
   return (
     <div>
@@ -31,14 +45,14 @@ export function ChildrenCard() {
           <Typography variant="body1">Date: {child.date}</Typography>
         </Card>
       ))}
-      <Button
-        variant="contained"
-        onClick={() => {
-          /* Future modal trigger */
-        }}
-      >
+      <Button variant="contained" onClick={handleOpenModal}>
         Add New Child
       </Button>
+      <AddChildModal
+        open={modalOpen}
+        handleClose={handleCloseModal}
+        addNewChild={addNewChild}
+      />
     </div>
   );
 }
