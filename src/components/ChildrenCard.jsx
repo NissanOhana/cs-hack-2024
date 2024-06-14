@@ -1,71 +1,81 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Typography, Button } from '@mui/material';
 import AddChildModal from './AddChildModal';
-import { db } from '../firebase'; // Import the configured Firestore database instance
+import { db } from '../firebase';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 
 export function ChildrenCard() {
-  const [children, setChildren] = useState([]); // State to store the list of children
-  const [modalOpen, setModalOpen] = useState(false); // State to control the visibility of the modal
+  const [children, setChildren] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  // useEffect hook to fetch data from Firestore on component mount
   useEffect(() => {
-    // TODO:  What is that async??? 🦁 🦁
     const fetchChildren = async () => {
-      // Define the collection you're working with ('children' collection)
       const childrenCollection = collection(db, 'children');
-
-      // Fetch documents from the Firestore collection
       const childrenSnapshot = await getDocs(childrenCollection);
-
-      // Map through each document and transform into a usable format for the state
-      const childrenList = childrenSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      // Set the state with the fetched data
+      const childrenList = await Promise.all(
+        childrenSnapshot.docs.map(async (doc) => {
+          const childData = doc.data();
+          const imageNum = childData.imageNum || 1;
+          const imageUrl = await fetchImage(imageNum);
+          return { id: doc.id, ...childData, imageUrl };
+        })
+      );
       setChildren(childrenList);
     };
 
-    // Call the function to fetch data
     fetchChildren();
   }, []);
 
+  const fetchImage = async (num) => {
+    const response = await fetch(
+      `https://dragonball-api.com/api/characters/${num}`
+    );
+    const data = await response.json();
+    return data.image;
+  };
+
   const handleOpenModal = () => {
-    setModalOpen(true); // Open the modal
+    setModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setModalOpen(false); // Close the modal
+    setModalOpen(false);
   };
 
-  // Function to add a new child to the Firestore database
   const addNewChild = async (child) => {
+    const imageNum = Math.floor(Math.random() * 20) + 1;
+    const imageUrl = await fetchImage(imageNum);
     try {
-      // Attempt to add a new document to the Firestore collection
-      const docRef = await addDoc(collection(db, 'children'), child);
-
-      // If successful, update the local state to include the new child
-      setChildren([...children, { ...child, id: docRef.id }]);
-
-      // Close the modal after adding the child
+      const docRef = await addDoc(collection(db, 'children'), {
+        ...child,
+        imageNum,
+      });
+      setChildren([...children, { ...child, id: docRef.id, imageUrl }]);
       handleCloseModal();
     } catch (error) {
-      // Log any errors that occur during the process
       console.error('Error adding document: ', error);
     }
   };
 
-  // Render the UI for the component
   return (
     <div>
       {children.map((child) => (
-        <Card key={child.id} className="card" sx={{ mb: 2, p: 2 }}>
-          <Typography variant="body1">Name: {child.name}</Typography>
-          <Typography variant="body1">Age: {child.age}</Typography>
-          <Typography variant="body1">School: {child.school}</Typography>
-          <Typography variant="body1">Date: {child.date}</Typography>
+        <Card
+          key={child.id}
+          className="card"
+          sx={{ display: 'flex', mb: 2, p: 2 }}
+        >
+          <div style={{ flex: '1 1 auto' }}>
+            <Typography variant="body1">Name: {child.name}</Typography>
+            <Typography variant="body1">Age: {child.age}</Typography>
+            <Typography variant="body1">School: {child.school}</Typography>
+            <Typography variant="body1">Date: {child.date}</Typography>
+          </div>
+          <img
+            src={child.imageUrl}
+            alt="Character"
+            style={{ width: 100, height: 100 }}
+          />
         </Card>
       ))}
       <Button variant="contained" onClick={handleOpenModal}>
